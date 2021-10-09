@@ -20,7 +20,7 @@
 #define POLLING_RATE 5000
 
 // API
-#define API_URL "http://192.168.0.119:8000/log"
+#define API_URL "https://volume-monitor-api.herokuapp.com"
 
 SSD1306Wire display(0x3c, SDA_PIN, SCL_PIN, GEOMETRY_128_32);
 WiFiClient client;
@@ -75,7 +75,10 @@ void displayValues() {
 void sendValuesToApi() {
   if(WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
-    http.begin(client, API_URL);
+    WiFiClientSecure client;
+    client.setInsecure();
+    client.connect(API_URL, 443);
+    http.begin(client, API_URL "/log");
     http.addHeader("Content-Type", "application/json");
     String body = "{\"duration\": " + String(duration) + ",\"distance\":" + String(distance) + ",\"volume\":" + String(volume) + "}";
     http.POST(body);
