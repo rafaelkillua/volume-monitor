@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include <SSD1306Wire.h>
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 
 // WIFI
 #define WLAN_SSID "WIFI_NAME"
@@ -16,6 +17,10 @@
 // CONSTANTS
 #define MAX_DISTANCE 1000
 #define MIN_DISTANCE 0
+#define POLLING_RATE 5000
+
+// API
+#define API_URL "http://192.168.0.119:8000/log"
 
 SSD1306Wire display(0x3c, SDA_PIN, SCL_PIN, GEOMETRY_128_32);
 WiFiClient client;
@@ -67,6 +72,17 @@ void displayValues() {
   display.display();
 }
 
+void sendValuesToApi() {
+  if(WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(client, API_URL);
+    http.addHeader("Content-Type", "application/json");
+    String body = "{\"duration\": " + String(duration) + ",\"distance\":" + String(distance) + ",\"volume\":" + String(volume) + "}";
+    http.POST(body);
+    http.end();
+  }
+}
+
 void setup()
 {
   Serial.begin(9600);
@@ -95,5 +111,7 @@ void loop() {
 
   displayValues();
 
-  delay(1000);
+  sendValuesToApi();
+
+  delay(POLLING_RATE);
 }
