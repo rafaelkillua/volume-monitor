@@ -110,7 +110,7 @@ void loop() {
 
   duration = pulseIn(ECHO_PIN, HIGH);
   distance = duration * 0.34 / 2;
-  volume = map(distance, MIN_DISTANCE, MAX_DISTANCE, 0, 1000);
+  volume = map(distance, MIN_DISTANCE, MAX_DISTANCE, 1000, 0);
 
   displayValues();
 
